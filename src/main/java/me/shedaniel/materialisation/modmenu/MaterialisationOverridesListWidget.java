@@ -4,7 +4,7 @@ import me.shedaniel.clothconfig2.gui.widget.DynamicElementListWidget;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
@@ -28,7 +28,7 @@ public class MaterialisationOverridesListWidget extends DynamicElementListWidget
     }
     
     @Override
-    public int addItem(Entry item) {
+    public int addItem(me.shedaniel.materialisation.modmenu.MaterialisationOverridesListWidget.Entry item) {
         return super.addItem(item);
     }
     
@@ -37,9 +37,9 @@ public class MaterialisationOverridesListWidget extends DynamicElementListWidget
     }
     
     public static class TextEntry extends MaterialisationOverridesListWidget.Entry {
-        protected StringRenderable s;
+        protected StringVisitable s;
         
-        public TextEntry(StringRenderable text) {
+        public TextEntry(StringVisitable text) {
             this.s = text;
         }
         
@@ -59,7 +59,7 @@ public class MaterialisationOverridesListWidget extends DynamicElementListWidget
         }
     }
     
-    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<Entry> {
+    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<me.shedaniel.materialisation.modmenu.MaterialisationOverridesListWidget.Entry> {
         
     }
     

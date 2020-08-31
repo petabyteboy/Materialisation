@@ -5,36 +5,36 @@ import me.shedaniel.materialisation.MaterialisationUtils;
 import me.shedaniel.materialisation.api.PartMaterial;
 import me.shedaniel.materialisation.api.PartMaterials;
 import me.shedaniel.materialisation.items.PatternItem;
-import net.minecraft.container.BlockContext;
-import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.BasicInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.stream.Collectors;
 
-public class MaterialPreparerContainer extends Container {
+public class MaterialPreparerContainer extends ScreenHandler {
     
     private final Inventory main, result;
     private final PlayerEntity player;
-    private BlockContext context;
+    private ScreenHandlerContext context;
     private String itemName;
     private int takingFirst, takingSecond;
     
     public MaterialPreparerContainer(int syncId, PlayerInventory main) {
-        this(syncId, main, BlockContext.EMPTY);
+        this(syncId, main, ScreenHandlerContext.EMPTY);
     }
     
-    public MaterialPreparerContainer(int syncId, PlayerInventory playerInventory, final BlockContext context) {
+    public MaterialPreparerContainer(int syncId, PlayerInventory playerInventory, final ScreenHandlerContext context) {
         super(null, syncId);
         this.context = context;
         this.result = new CraftingResultInventory();
-        this.main = new BasicInventory(2) {
+        this.main = new SimpleInventory(2) {
             public void markDirty() {
                 super.markDirty();
                 onContentChanged(this);
@@ -54,16 +54,16 @@ public class MaterialPreparerContainer extends Container {
             }
             
             public boolean canTakeItems(PlayerEntity playerEntity_1) {
-                return hasStack() && main.getInvStack(0).getCount() >= takingFirst && main.getInvStack(1).getCount() >= takingSecond;
+                return hasStack() && main.getStack(0).getCount() >= takingFirst && main.getStack(1).getCount() >= takingSecond;
             }
             
             public ItemStack onTakeItem(PlayerEntity playerEntity_1, ItemStack itemStack_1) {
-                ItemStack first = main.getInvStack(0);
+                ItemStack first = main.getStack(0);
                 first.decrement(takingFirst);
-                main.setInvStack(0, first);
-                ItemStack second = main.getInvStack(1);
+                main.setStack(0, first);
+                ItemStack second = main.getStack(1);
                 second.decrement(takingSecond);
-                main.setInvStack(1, second);
+                main.setStack(1, second);
                 return itemStack_1;
             }
         });
@@ -93,10 +93,10 @@ public class MaterialPreparerContainer extends Container {
     private void updateResult() {
         takingFirst = 0;
         takingSecond = 0;
-        ItemStack first = this.main.getInvStack(0);
-        ItemStack second = this.main.getInvStack(1);
+        ItemStack first = this.main.getStack(0);
+        ItemStack second = this.main.getStack(1);
         if (first.isEmpty() || second.isEmpty()) {
-            this.result.setInvStack(0, ItemStack.EMPTY);
+            this.result.setStack(0, ItemStack.EMPTY);
         } else if (first.getItem() instanceof PatternItem && first.getItem() != Materialisation.BLANK_PATTERN) {
             if (first.getItem() == Materialisation.PICKAXE_HEAD_PATTERN) {
                 PartMaterial material = null;
@@ -109,14 +109,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(4 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createPickaxeHead(material));
+                        this.result.setStack(0, MaterialisationUtils.createPickaxeHead(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.TOOL_HANDLE_PATTERN) {
@@ -130,14 +130,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(1 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createToolHandle(material));
+                        this.result.setStack(0, MaterialisationUtils.createToolHandle(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.AXE_HEAD_PATTERN) {
@@ -151,14 +151,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(4 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createAxeHead(material));
+                        this.result.setStack(0, MaterialisationUtils.createAxeHead(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.SHOVEL_HEAD_PATTERN) {
@@ -172,14 +172,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(4 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createShovelHead(material));
+                        this.result.setStack(0, MaterialisationUtils.createShovelHead(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.SWORD_BLADE_PATTERN) {
@@ -193,14 +193,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(4 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createSwordBlade(material));
+                        this.result.setStack(0, MaterialisationUtils.createSwordBlade(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.HAMMER_HEAD_PATTERN) {
@@ -214,14 +214,14 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(16 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createHammerHead(material));
+                        this.result.setStack(0, MaterialisationUtils.createHammerHead(material));
                     }
                 }
             } else if (first.getItem() == Materialisation.MEGAAXE_HEAD_PATTERN) {
@@ -235,21 +235,21 @@ public class MaterialPreparerContainer extends Container {
                     }
                 }
                 if (material == null || repairMultiplier <= 0)
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                 else {
                     int itemsNeeded = MathHelper.ceil(64 / repairMultiplier);
                     takingSecond = itemsNeeded;
                     if (second.getCount() < itemsNeeded) {
-                        this.result.setInvStack(0, ItemStack.EMPTY);
+                        this.result.setStack(0, ItemStack.EMPTY);
                     } else {
-                        this.result.setInvStack(0, MaterialisationUtils.createMegaAxeHead(material));
+                        this.result.setStack(0, MaterialisationUtils.createMegaAxeHead(material));
                     }
                 }
             } else {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             }
         } else {
-            this.result.setInvStack(0, ItemStack.EMPTY);
+            this.result.setStack(0, ItemStack.EMPTY);
         }
         this.sendContentUpdates();
     }

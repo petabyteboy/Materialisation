@@ -10,15 +10,15 @@ import me.shedaniel.materialisation.api.PartMaterial;
 import me.shedaniel.materialisation.items.MaterialisedMiningTool;
 import me.shedaniel.materialisation.modifiers.Modifiers;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
-import net.minecraft.container.BlockContext;
-import net.minecraft.container.Container;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.BasicInventory;
 import net.minecraft.inventory.CraftingResultInventory;
 import net.minecraft.inventory.Inventory;
+import net.minecraft.inventory.SimpleInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.PacketByteBuf;
+import net.minecraft.screen.ScreenHandler;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.screen.slot.Slot;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Pair;
@@ -27,23 +27,23 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.Map;
 import java.util.Optional;
 
-public class MaterialisingTableContainer extends Container {
+public class MaterialisingTableContainer extends ScreenHandler {
     
     private final Inventory main, result;
     private final PlayerEntity player;
-    private BlockContext context;
+    private ScreenHandlerContext context;
     private String itemName;
     private int nextDecrease;
     
     public MaterialisingTableContainer(int syncId, PlayerInventory main) {
-        this(syncId, main, BlockContext.EMPTY);
+        this(syncId, main, ScreenHandlerContext.EMPTY);
     }
     
-    public MaterialisingTableContainer(int syncId, PlayerInventory playerInventory, final BlockContext context) {
+    public MaterialisingTableContainer(int syncId, PlayerInventory playerInventory, final ScreenHandlerContext context) {
         super(null, syncId);
         this.context = context;
         this.result = new CraftingResultInventory();
-        this.main = new BasicInventory(2) {
+        this.main = new SimpleInventory(2) {
             public void markDirty() {
                 super.markDirty();
                 onContentChanged(this);
@@ -62,12 +62,12 @@ public class MaterialisingTableContainer extends Container {
             }
             
             public ItemStack onTakeItem(PlayerEntity playerEntity_1, ItemStack itemStack_1) {
-                ItemStack stack = main.getInvStack(0).copy();
+                ItemStack stack = main.getStack(0).copy();
                 stack.decrement(1);
-                main.setInvStack(0, stack);
-                stack = main.getInvStack(1).copy();
+                main.setStack(0, stack);
+                stack = main.getStack(1).copy();
                 stack.decrement(nextDecrease);
-                main.setInvStack(1, stack);
+                main.setStack(1, stack);
                 context.run((world, blockPos) -> {
                     ServerSidePacketRegistry.INSTANCE.sendToPlayer(playerEntity_1, Materialisation.MATERIALISING_TABLE_PLAY_SOUND, new PacketByteBuf(Unpooled.buffer()));
                 });
@@ -111,10 +111,10 @@ public class MaterialisingTableContainer extends Container {
     }
     
     private void updateResult() {
-        ItemStack first = this.main.getInvStack(0);
-        ItemStack second = this.main.getInvStack(1);
+        ItemStack first = this.main.getStack(0);
+        ItemStack second = this.main.getStack(1);
         if (first.isEmpty()) {
-            this.result.setInvStack(0, ItemStack.EMPTY);
+            this.result.setStack(0, ItemStack.EMPTY);
         } else if (first.getItem() instanceof MaterialisedMiningTool
                    && first.getOrCreateTag().contains("mt_0_material")
                    && first.getOrCreateTag().contains("mt_1_material")
@@ -136,9 +136,9 @@ public class MaterialisingTableContainer extends Container {
                             tool.setModifierLevel(copy, modifier, level + 1);
                             if (level + 1 <= maximumLevel || MaterialisationUtils.getToolMaxDurability(copy) >= 1) {
                                 nextDecrease = modifierOptional.get().getRight().getRight().count;
-                                this.result.setInvStack(0, copy);
+                                this.result.setStack(0, copy);
                             } else {
-                                this.result.setInvStack(0, ItemStack.EMPTY);
+                                this.result.setStack(0, ItemStack.EMPTY);
                             }
                             this.sendContentUpdates();
                             return;
@@ -154,7 +154,7 @@ public class MaterialisingTableContainer extends Container {
             int maxDurability = MaterialisationUtils.getToolMaxDurability(first);
             if (!second.isEmpty()) {
                 if (toolDurability >= maxDurability) {
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                     this.sendContentUpdates();
                     return;
                 }
@@ -162,13 +162,13 @@ public class MaterialisingTableContainer extends Container {
                 if (copy.getOrCreateTag().contains("mt_1_material"))
                     material = MaterialisationUtils.getMaterialFromString(copy.getOrCreateTag().getString("mt_1_material"));
                 if (material == null) {
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                     this.sendContentUpdates();
                     return;
                 }
                 int repairAmount = material.getRepairAmount(second);
                 if (repairAmount <= 0) {
-                    this.result.setInvStack(0, ItemStack.EMPTY);
+                    this.result.setStack(0, ItemStack.EMPTY);
                     this.sendContentUpdates();
                     return;
                 }
@@ -183,7 +183,7 @@ public class MaterialisingTableContainer extends Container {
                 else
                     copy.setCustomName(new LiteralText(this.itemName));
             nextDecrease = 1;
-            this.result.setInvStack(0, copy);
+            this.result.setStack(0, copy);
         } else if ((first.getItem() == Materialisation.PICKAXE_HEAD && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.PICKAXE_HEAD)) {
             // Crafting a pickaxe
             int handle = 0, head = 0;
@@ -191,10 +191,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.PICKAXE_HEAD)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createPickaxe(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -206,7 +206,7 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else if ((first.getItem() == Materialisation.AXE_HEAD && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.AXE_HEAD)) {
             // Crafting an axe
@@ -215,10 +215,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.AXE_HEAD)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createAxe(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -230,7 +230,7 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else if ((first.getItem() == Materialisation.SHOVEL_HEAD && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.SHOVEL_HEAD)) {
             // Crafting a shovel
@@ -239,10 +239,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.SHOVEL_HEAD)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createShovel(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -254,7 +254,7 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else if ((first.getItem() == Materialisation.SWORD_BLADE && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.SWORD_BLADE)) {
             // Crafting a sword
@@ -263,10 +263,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.SWORD_BLADE)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createSword(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -278,7 +278,7 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else if ((first.getItem() == Materialisation.MEGAAXE_HEAD && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.MEGAAXE_HEAD)) {
             // Crafting a mega axe
@@ -287,10 +287,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.MEGAAXE_HEAD)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createMegaAxe(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -302,7 +302,7 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else if ((first.getItem() == Materialisation.HAMMER_HEAD && second.getItem() == Materialisation.HANDLE) || (first.getItem() == Materialisation.HANDLE && second.getItem() == Materialisation.HAMMER_HEAD)) {
             // Crafting a hammer
@@ -311,10 +311,10 @@ public class MaterialisingTableContainer extends Container {
                 head = 1;
             else if (first.getItem() == Materialisation.HAMMER_HEAD)
                 handle = 1;
-            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(handle));
-            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getInvStack(head));
+            PartMaterial handleMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(handle));
+            PartMaterial headMaterial = MaterialisationUtils.getMaterialFromPart(main.getStack(head));
             if (handleMaterial == null || headMaterial == null) {
-                this.result.setInvStack(0, ItemStack.EMPTY);
+                this.result.setStack(0, ItemStack.EMPTY);
             } else {
                 ItemStack copy = MaterialisationUtils.createHammer(handleMaterial, headMaterial);
                 if (StringUtils.isBlank(this.itemName)) {
@@ -326,10 +326,10 @@ public class MaterialisingTableContainer extends Container {
                     else
                         copy.setCustomName(new LiteralText(this.itemName));
                 nextDecrease = 1;
-                this.result.setInvStack(0, copy);
+                this.result.setStack(0, copy);
             }
         } else {
-            this.result.setInvStack(0, ItemStack.EMPTY);
+            this.result.setStack(0, ItemStack.EMPTY);
         }
         this.sendContentUpdates();
     }

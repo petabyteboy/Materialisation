@@ -32,8 +32,8 @@ public class MaterialisedShovelItem extends ShovelItem implements MaterialisedMi
     }
     
     @Override
-    public float getMiningSpeed(ItemStack stack, BlockState state) {
-        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeed(stack, state);
+    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
+        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeedMultiplier(stack, state);
     }
     
     @Override
@@ -43,7 +43,7 @@ public class MaterialisedShovelItem extends ShovelItem implements MaterialisedMi
         ItemStack itemStack = context.getStack();
         if (MaterialisationUtils.getToolDurability(itemStack) > 0)
             if (context.getSide() != Direction.DOWN && world.getBlockState(blockPos.up()).isAir()) {
-                BlockState blockState = PATH_BLOCKSTATES.get(world.getBlockState(blockPos).getBlock());
+                BlockState blockState = PATH_STATES.get(world.getBlockState(blockPos).getBlock());
                 if (blockState != null) {
                     PlayerEntity playerEntity_1 = context.getPlayer();
                     world.playSound(playerEntity_1, blockPos, SoundEvents.ITEM_SHOVEL_FLATTEN, SoundCategory.BLOCKS, 1.0F, 1.0F);

@@ -10,7 +10,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -37,7 +37,7 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
     }
     
     @Override
-    public int addItem(Entry item) {
+    public int addItem(me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry item) {
         return super.addItem(item);
     }
     
@@ -56,12 +56,12 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
         addItem(new TextEntry(new TranslatableText("config.text.materialisation.version", packInfo.getVersion().getFriendlyString()).formatted(Formatting.GRAY)));
         addItem(new TextEntry(new TranslatableText("config.text.materialisation.identifier", packInfo.getIdentifier().toString()).formatted(Formatting.GRAY)));
         if (!packInfo.getDescription().isEmpty()) {
-            for (StringRenderable text : MinecraftClient.getInstance().textRenderer.wrapStringToWidthAsList(new LiteralText(packInfo.getDescription()), getItemWidth())) {
+            for (StringVisitable text : MinecraftClient.getInstance().textRenderer.wrapLines(new LiteralText(packInfo.getDescription()), getItemWidth())) {
                 addItem(new TextEntry(MaterialisationCloth.color(text, Formatting.GRAY)));
             }
         }
         addItem(new EmptyEntry(11));
-        for (StringRenderable text : MinecraftClient.getInstance().textRenderer.wrapStringToWidthAsList(new TranslatableText("config.text.materialisation.materials", materialsPack.getKnownMaterials().count(), materialsPack.getKnownMaterials().map(PartMaterial::getMaterialTranslateKey).map(I18n::translate).collect(Collectors.joining(", "))), getItemWidth())) {
+        for (StringVisitable text : MinecraftClient.getInstance().textRenderer.wrapLines(new TranslatableText("config.text.materialisation.materials", materialsPack.getKnownMaterials().count(), materialsPack.getKnownMaterials().map(PartMaterial::getMaterialTranslateKey).map(I18n::translate).collect(Collectors.joining(", "))), getItemWidth())) {
             addItem(new TextEntry(MaterialisationCloth.color(text, Formatting.GRAY)));
         }
     }
@@ -92,7 +92,7 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
                ((Math.max((int) (b * 0.7), 0) & 0xFF));
     }
     
-    public static class ColorEntry extends Entry {
+    public static class ColorEntry extends me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry {
         private Text s;
         private int color;
         
@@ -118,7 +118,7 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
         }
     }
     
-    public static class TitleMaterialOverrideEntry extends Entry {
+    public static class TitleMaterialOverrideEntry extends me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry {
         protected Text s;
         private ButtonWidget overrideButton;
         
@@ -149,10 +149,10 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
         }
     }
     
-    public static class TextEntry extends Entry {
-        protected StringRenderable s;
+    public static class TextEntry extends me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry {
+        protected StringVisitable s;
         
-        public TextEntry(StringRenderable text) {
+        public TextEntry(StringVisitable text) {
             this.s = text;
         }
         
@@ -172,7 +172,7 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
         }
     }
     
-    public static class EmptyEntry extends Entry {
+    public static class EmptyEntry extends me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry {
         private int height;
         
         public EmptyEntry(int height) {
@@ -195,7 +195,7 @@ public class MaterialisationDescriptionListWidget extends DynamicElementListWidg
         }
     }
     
-    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<Entry> {
+    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<me.shedaniel.materialisation.modmenu.MaterialisationDescriptionListWidget.Entry> {
         
     }
 }

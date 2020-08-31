@@ -22,7 +22,7 @@ import net.minecraft.util.hit.BlockHitResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.RayTraceContext;
+import net.minecraft.world.RaycastContext;
 import net.minecraft.world.World;
 
 import javax.annotation.Nonnull;
@@ -64,8 +64,8 @@ public class MaterialisedHammerItem extends PickaxeItem implements MaterialisedM
     }
     
     @Override
-    public float getMiningSpeed(ItemStack stack, BlockState state) {
-        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeed(stack, state);
+    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
+        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeedMultiplier(stack, state);
     }
     
     @Override
@@ -89,7 +89,7 @@ public class MaterialisedHammerItem extends PickaxeItem implements MaterialisedM
         Vec3d vec3d_2 = player.getRotationVec(1);
         int range = 4;
         Vec3d vec3d_3 = vec3d_1.add(vec3d_2.x * range, vec3d_2.y * range, vec3d_2.z * range);
-        BlockHitResult hitResult = world.rayTrace(new RayTraceContext(vec3d_1, vec3d_3, RayTraceContext.ShapeType.OUTLINE, true ? RayTraceContext.FluidHandling.ANY : RayTraceContext.FluidHandling.NONE, player));
+        BlockHitResult hitResult = world.raycast(new RaycastContext(vec3d_1, vec3d_3, RaycastContext.ShapeType.OUTLINE, true ? RaycastContext.FluidHandling.ANY : RaycastContext.FluidHandling.NONE, player));
         Direction.Axis axis = hitResult.getSide().getAxis();
         for (int i = -1; i <= 1; i++)
             for (int j = -1; j <= 1; j++) {
@@ -114,7 +114,7 @@ public class MaterialisedHammerItem extends PickaxeItem implements MaterialisedM
             return false;
         } else {
             FluidState fluidState_1 = world.getFluidState(blockPos_1);
-            world.playLevelEvent(null, 2001, blockPos_1, Block.getRawIdFromState(blockState_1));
+            world.syncWorldEvent(null, 2001, blockPos_1, Block.getRawIdFromState(blockState_1));
             if (boolean_1) {
                 BlockEntity blockEntity_1 = blockState_1.getBlock().hasBlockEntity() ? world.getBlockEntity(blockPos_1) : null;
                 Block.dropStacks(blockState_1, world, blockPos_1, blockEntity_1, entity_1, itemStack_1);

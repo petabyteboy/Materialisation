@@ -26,8 +26,8 @@ public class MaterialisedPickaxeItem extends PickaxeItem implements Materialised
     }
     
     @Override
-    public float getMiningSpeed(ItemStack stack, BlockState state) {
-        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeed(stack, state);
+    public float getMiningSpeedMultiplier(ItemStack stack, BlockState state) {
+        return MaterialisationUtils.getToolDurability(stack) <= 0 ? -1 : super.getMiningSpeedMultiplier(stack, state);
     }
     
     @Nonnull

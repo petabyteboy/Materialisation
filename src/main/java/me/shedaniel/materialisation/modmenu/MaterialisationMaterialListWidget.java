@@ -13,7 +13,7 @@ import net.minecraft.client.util.Rect2i;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
@@ -38,11 +38,11 @@ public class MaterialisationMaterialListWidget extends DynamicElementListWidget<
     }
     
     @Override
-    public int addItem(Entry item) {
+    public int addItem(me.shedaniel.materialisation.modmenu.MaterialisationMaterialListWidget.Entry item) {
         return super.addItem(item);
     }
     
-    public abstract static class PackEntry extends Entry {
+    public abstract static class PackEntry extends me.shedaniel.materialisation.modmenu.MaterialisationMaterialListWidget.Entry {
         private PackWidget widget;
         private ConfigPackInfo packInfo;
         
@@ -79,13 +79,13 @@ public class MaterialisationMaterialListWidget extends DynamicElementListWidget<
                 fill(stack, bounds.getX(), bounds.getY(), bounds.getX() + bounds.getWidth(), bounds.getY() + bounds.getHeight(), 0x15FFFFFF);
                 boolean isHovered = focused || bounds.contains(mouseX, mouseY);
                 MinecraftClient.getInstance().textRenderer.draw(stack, (isHovered ? Formatting.UNDERLINE.toString() : "") + packInfo.getDisplayName(), bounds.getX() + 5, bounds.getY() + 6, 16777215);
-                Iterator<StringRenderable> var7 = MinecraftClient.getInstance().textRenderer.wrapStringToWidthAsList(new LiteralText(trimEndNewlines(packInfo.getDescription())), bounds.getWidth() - 10).stream().limit(2).iterator();
+                Iterator<StringVisitable> var7 = MinecraftClient.getInstance().textRenderer.wrapLines(new LiteralText(trimEndNewlines(packInfo.getDescription())), bounds.getWidth() - 10).stream().limit(2).iterator();
                 int int_2 = bounds.getY() + 6 + 11;
                 for (int lolWot = 0; var7.hasNext(); int_2 += 9) {
-                    StringRenderable string_2 = var7.next();
+                    StringVisitable string_2 = var7.next();
                     float float_1 = (float) (bounds.getX() + 5);
                     if (MinecraftClient.getInstance().textRenderer.isRightToLeft()) {
-                        int int_5 = MinecraftClient.getInstance().textRenderer.getStringWidth(MinecraftClient.getInstance().textRenderer.mirror(string_2.getString()));
+                        int int_5 = MinecraftClient.getInstance().textRenderer.getWidth(MinecraftClient.getInstance().textRenderer.mirror(string_2.getString()));
                         float_1 += (float) (bounds.getWidth() - 10 - int_5);
                     }
                     MinecraftClient.getInstance().textRenderer.draw(stack, string_2, float_1, (float) int_2, 0xEEFFFFFF);
@@ -132,7 +132,7 @@ public class MaterialisationMaterialListWidget extends DynamicElementListWidget<
         }
     }
     
-    public static abstract class MaterialEntry extends Entry {
+    public static abstract class MaterialEntry extends me.shedaniel.materialisation.modmenu.MaterialisationMaterialListWidget.Entry {
         
         private MaterialWidget widget;
         private PartMaterial partMaterial;
@@ -202,7 +202,7 @@ public class MaterialisationMaterialListWidget extends DynamicElementListWidget<
         }
     }
     
-    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<Entry> {
+    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<me.shedaniel.materialisation.modmenu.MaterialisationMaterialListWidget.Entry> {
         
     }
 }

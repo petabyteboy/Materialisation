@@ -4,14 +4,14 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import me.shedaniel.materialisation.ModReference;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.gui.screen.ingame.ContainerScreen;
+import net.minecraft.client.gui.screen.ingame.HandledScreen;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
-public class MaterialPreparerScreen extends ContainerScreen<MaterialPreparerContainer> {
+public class MaterialPreparerScreen extends HandledScreen<MaterialPreparerContainer> {
     
     private static final Identifier BG_TEX = new Identifier(ModReference.MOD_ID, "textures/gui/container/material_preparer.png");
     
@@ -21,14 +21,14 @@ public class MaterialPreparerScreen extends ContainerScreen<MaterialPreparerCont
     
     @Override
     protected void init() {
-        this.containerHeight = 140;
+        this.backgroundHeight = 140;
         super.init();
     }
     
     @Override
     public boolean keyPressed(int int_1, int int_2, int int_3) {
         if (int_1 == 256) {
-            this.client.player.closeContainer();
+            this.client.player.closeHandledScreen();
             return true;
         }
         return super.keyPressed(int_1, int_2, int_3);
@@ -43,9 +43,9 @@ public class MaterialPreparerScreen extends ContainerScreen<MaterialPreparerCont
     @Override
     protected void drawBackground(MatrixStack matrixStack, float v, int i, int i1) {
         this.client.getTextureManager().bindTexture(BG_TEX);
-        this.drawTexture(matrixStack, x, y, 0, 0, this.containerWidth, this.containerHeight);
-        if ((this.container.getSlot(0).hasStack() || this.container.getSlot(1).hasStack()) && !this.container.getSlot(2).hasStack()) {
-            this.drawTexture(matrixStack, x + 99, y + 45 - 26, this.containerWidth, 0, 28, 21);
+        this.drawTexture(matrixStack, x, y, 0, 0, this.backgroundWidth, this.backgroundHeight);
+        if ((this.handler.getSlot(0).hasStack() || this.handler.getSlot(1).hasStack()) && !this.handler.getSlot(2).hasStack()) {
+            this.drawTexture(matrixStack, x + 99, y + 45 - 26, this.backgroundWidth, 0, 28, 21);
         }
     }
     

@@ -51,7 +51,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
     }
     
     @Override
-    public int addItem(Entry item) {
+    public int addItem(me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry item) {
         return super.addItem(item);
     }
     
@@ -59,7 +59,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
         clearItems();
     }
     
-    public static class PackEntry extends Entry {
+    public static class PackEntry extends me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry {
         private OnlinePack onlinePack;
         private MaterialisationInstallListWidget listWidget;
         private Rect2i bounds;
@@ -142,7 +142,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
             font.draw(stack, "§l§n" + onlinePack.displayName, x + 5, y + 5, 16777215);
             int i = 0;
             if (onlinePack.description != null)
-                for (StringRenderable text : MinecraftClient.getInstance().textRenderer.wrapStringToWidthAsList(new LiteralText(onlinePack.description), entryWidth)) {
+                for (StringVisitable text : MinecraftClient.getInstance().textRenderer.wrapLines(new LiteralText(onlinePack.description), entryWidth)) {
                     font.draw(stack, MaterialisationCloth.color(text, Formatting.GRAY), x + 5, y + 7 + 9 + i * 9, 16777215);
                     i++;
                     if (i > 1)
@@ -175,7 +175,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
         }
     }
     
-    public static class LoadingEntry extends Entry {
+    public static class LoadingEntry extends me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry {
         @Override
         public void render(MatrixStack stack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
             String string_3;
@@ -207,7 +207,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
         }
     }
     
-    public static class FailedEntry extends Entry {
+    public static class FailedEntry extends me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry {
         @Override
         public void render(MatrixStack stack, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean isSelected, float delta) {
             TextRenderer font = MinecraftClient.getInstance().textRenderer;
@@ -225,7 +225,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
         }
     }
     
-    public static class EmptyEntry extends Entry {
+    public static class EmptyEntry extends me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry {
         private int height;
         
         public EmptyEntry(int height) {
@@ -248,7 +248,7 @@ public class MaterialisationInstallListWidget extends DynamicElementListWidget<M
         }
     }
     
-    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<Entry> {
+    public static abstract class Entry extends DynamicElementListWidget.ElementEntry<me.shedaniel.materialisation.modmenu.MaterialisationInstallListWidget.Entry> {
         
     }
 }

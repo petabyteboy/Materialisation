@@ -14,10 +14,10 @@ import net.fabricmc.fabric.api.container.ContainerProviderRegistry;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.SharedConstants;
 import net.minecraft.block.Block;
-import net.minecraft.container.BlockContext;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.screen.ScreenHandlerContext;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import org.apache.logging.log4j.Level;
@@ -78,14 +78,14 @@ public class Materialisation implements ModInitializer {
         registerBlock("materialising_table", MATERIALISING_TABLE, ItemGroup.DECORATIONS);
         registerBlock("material_preparer", MATERIAL_PREPARER, ItemGroup.DECORATIONS);
         ContainerProviderRegistry.INSTANCE.registerFactory(MATERIALISING_TABLE_CONTAINER, (syncId, identifier, playerEntity, packetByteBuf) -> {
-            return new MaterialisingTableContainer(syncId, playerEntity.inventory, BlockContext.create(playerEntity.world, packetByteBuf.readBlockPos()));
+            return new MaterialisingTableContainer(syncId, playerEntity.inventory, ScreenHandlerContext.create(playerEntity.world, packetByteBuf.readBlockPos()));
         });
         ContainerProviderRegistry.INSTANCE.registerFactory(MATERIAL_PREPARER_CONTAINER, (syncId, identifier, playerEntity, packetByteBuf) -> {
-            return new MaterialPreparerContainer(syncId, playerEntity.inventory, BlockContext.create(playerEntity.world, packetByteBuf.readBlockPos()));
+            return new MaterialPreparerContainer(syncId, playerEntity.inventory, ScreenHandlerContext.create(playerEntity.world, packetByteBuf.readBlockPos()));
         });
         ServerSidePacketRegistry.INSTANCE.register(MATERIALISING_TABLE_RENAME, (packetContext, packetByteBuf) -> {
-            if (packetContext.getPlayer().container instanceof MaterialisingTableContainer) {
-                MaterialisingTableContainer container = (MaterialisingTableContainer) packetContext.getPlayer().container;
+            if (packetContext.getPlayer().currentScreenHandler instanceof MaterialisingTableContainer) {
+                MaterialisingTableContainer container = (MaterialisingTableContainer) packetContext.getPlayer().currentScreenHandler;
                 String string_1 = SharedConstants.stripInvalidChars(packetByteBuf.readString(32767));
                 if (string_1.length() <= 35)
                     container.setNewItemName(string_1);

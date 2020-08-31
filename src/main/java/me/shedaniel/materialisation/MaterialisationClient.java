@@ -23,17 +23,17 @@ import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.fabricmc.fabric.impl.client.indigo.renderer.helper.GeometryHelper;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.item.ModelPredicateProvider;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.model.*;
 import net.minecraft.client.render.model.json.JsonUnbakedModel;
-import net.minecraft.client.render.model.json.ModelItemPropertyOverrideList;
+import net.minecraft.client.render.model.json.ModelOverrideList;
 import net.minecraft.client.render.model.json.ModelTransformation;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.ModelIdentifier;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemPropertyGetter;
 import net.minecraft.item.ItemStack;
 import net.minecraft.resource.Resource;
 import net.minecraft.sound.SoundEvents;
@@ -77,7 +77,7 @@ public class MaterialisationClient implements ClientModInitializer {
                 Materialisation.PICKAXE_HEAD,
                 Materialisation.AXE_HEAD
         };
-        ItemPropertyGetter brightProvider = (itemStack, world, livingEntity) -> MaterialisationUtils.isHandleBright(itemStack) ? 1 : 0;
+        ModelPredicateProvider brightProvider = (itemStack, world, livingEntity) -> MaterialisationUtils.isHandleBright(itemStack) ? 1 : 0;
         ColorProviderRegistry.ITEM.register(MaterialisationUtils::getItemLayerColor, colorableToolParts);
         for (Item colorableToolPart : colorableToolParts) {
             FabricModelPredicateProviderRegistry.register(colorableToolPart, new Identifier(ModReference.MOD_ID, "bright"), brightProvider);
@@ -256,8 +256,8 @@ public class MaterialisationClient implements ClientModInitializer {
         }
         
         @Override
-        public ModelItemPropertyOverrideList getItemPropertyOverrides() {
-            return ModelItemPropertyOverrideList.EMPTY;
+        public ModelOverrideList getOverrides() {
+            return ModelOverrideList.EMPTY;
         }
     }
 }

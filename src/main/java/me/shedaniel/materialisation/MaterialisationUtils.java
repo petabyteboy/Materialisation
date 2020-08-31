@@ -36,7 +36,7 @@ public class MaterialisationUtils {
         }
         
         @Override
-        public float getMiningSpeed() {
+        public float getMiningSpeedMultiplier() {
             return 1;
         }
         

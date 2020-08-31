@@ -12,7 +12,7 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringRenderable;
+import net.minecraft.text.StringVisitable;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
@@ -57,7 +57,7 @@ public class MaterialisationErrorInstallScreen extends Screen {
             s.add("  at " + traceElement);
         }
         for (String s1 : s) {
-            for (StringRenderable s2 : textRenderer.wrapStringToWidthAsList(new LiteralText(s1), width - 40)) {
+            for (StringVisitable s2 : textRenderer.wrapLines(new LiteralText(s1), width - 40)) {
                 entries.add(new MaterialisationOverridesListWidget.TextEntry(s2));
             }
         }

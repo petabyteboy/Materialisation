@@ -20,7 +20,7 @@ public class BetterIngredient {
     private transient Lazy<ItemStack[]> stacks = new Lazy<>(() -> {
         if (type == Type.ITEM)
             return new ItemStack[]{new ItemStack(Registry.ITEM.get(new Identifier(content)), count)};
-        Tag<Item> tag = ItemTags.getContainer().get(new Identifier(content));
+        Tag<Item> tag = ItemTags.getTagGroup().get(new Identifier(content));
         List<ItemStack> itemStacks = new ArrayList<>();
         if (tag != null) {
             for (Item value : tag.values()) {

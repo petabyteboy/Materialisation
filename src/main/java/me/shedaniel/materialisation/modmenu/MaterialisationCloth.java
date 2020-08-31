@@ -15,21 +15,21 @@ public class MaterialisationCloth {
     
     @SuppressWarnings("Convert2MethodRef") public static Function<Screen, Screen> config = screen -> new MaterialisationMaterialsScreen(screen);
     
-    public static StringRenderable color(StringRenderable text, Formatting formatting) {
-        return text.visit(new StringRenderable.StyledVisitor<StringRenderable>() {
+    public static StringVisitable color(StringVisitable text, Formatting formatting) {
+        return text.visit(new StringVisitable.StyledVisitor<StringVisitable>() {
             TextCollector collector = new TextCollector();
             
             @Override
-            public Optional<StringRenderable> accept(Style style, String asString) {
-                collector.add(StringRenderable.styled(asString, style));
+            public Optional<StringVisitable> accept(Style style, String asString) {
+                collector.add(StringVisitable.styled(asString, style));
                 return Optional.of(collector.getCombined());
             }
         }, Style.EMPTY.withFormatting(formatting)).orElse(text);
     }
     
-    public static Text wrap(StringRenderable text) {
+    public static Text wrap(StringVisitable text) {
         MutableText result = new LiteralText("");
-        text.visit(new StringRenderable.StyledVisitor<Text>() {
+        text.visit(new StringVisitable.StyledVisitor<Text>() {
             MutableText text = new LiteralText("");
             
             @Override
@@ -37,7 +37,7 @@ public class MaterialisationCloth {
                 result.append(new LiteralText(asString).fillStyle(style));
                 return Optional.empty();
             }
-        }, Style.EMPTY).orElse(Text.method_30163(text.getString()));
+        }, Style.EMPTY).orElse(Text.of(text.getString()));
         return result;
     }
     
